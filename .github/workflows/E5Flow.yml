@@ -29,9 +29,9 @@ jobs:
             all_but_latest: true
             access_token: ${{ secrets.GH_TOKEN }}
 #############################################################################################
-       - name: Sleep for 5 minutes to kill previous contianer
-         run: sleep 5m
-         shell: bash
+     #  - name: Sleep for 5 minutes to kill previous contianer
+     #    run: sleep 5m
+     #    shell: bash
 #############################################################################################
        - name: Deploying and Running E5Sub Bot
          timeout-minutes: 310
