@@ -1,0 +1,50 @@
+name: E5 Bot Flow
+
+on:
+  push:
+    paths:
+      - 'Records/E5Flow.txt'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+ #############################################################################################    
+       - name: Checkout
+         uses: actions/checkout@main
+ #############################################################################################      
+       - name: Initialization
+         continue-on-error: true
+         run: |
+           git config --global user.name ${{ secrets.GH_NAME }}
+           git config --global user.email ${{ secrets.GH_MAIL }}
+           git config --global credential.helper store
+           echo "https://tsexr7hxyf:${{ secrets.github.token }}@github.com" > ~/.git-credentials
+#############################################################################################
+       - uses: styfle/cancel-workflow-action@0.9.0
+         name: "Cancel duplicate workflow runs"
+         with:
+            all_but_latest: true
+            access_token: ${{ secrets.GH_TOKEN }}
+#############################################################################################
+       - name: Sleep for 5 minutes to kill previous contianer
+         run: sleep 5m
+         shell: bash
+#############################################################################################
+       - name: Deploying and Running E5Sub Bot
+         timeout-minutes: 310
+         continue-on-error: true
+         run: |
+           git clone https://tsexr7hxyf:${{ secrets.GH_TOKEN }}@github.com/tsexr7hxyf/E5Bot e5 && cd e5 && sudo docker-compose up --build
+#############################################################################################
+       - name: Send Record to Github
+         continue-on-error: true
+         run: |
+              git clone https://github.com/tsexr7hxyf/botflow
+              cd botflow || exit 1
+              echo $(TZ='${{ secrets.TZ }}' date) >> Records/E5Flow.txt
+              git add Records/E5Flow.txt
+              git commit -m "E5Sub Workflow : add recorded loop to logs $(TZ='${{ secrets.TZ }}' date)"
+              git push -q https://${{ secrets.GH_TOKEN }}@github.com/tsexr7hxyf/botflow HEAD:main            
